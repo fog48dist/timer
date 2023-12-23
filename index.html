@@ -1,179 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Timer</title>
-    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="timer-svgrepo-com.svg" type="image/svg+xml">
+    <link rel="manifest" href="https://fog48dist.github.io/timer/manifest.json">
     <style>
-      html,
-      body {
-        min-height: 100%;
-        padding: 0;
-        margin: 0;
-        background-color: hsl(0, 0%, 80%);
-        display: flex;
-        flex-direction: column-reverse;
-        gap:1%;
-      }
-      html {
-        height: 100%;
-      }
-      body>div{
-        background-color: white;
-        /* text-align: center; */
-        display: flex;
-        justify-content: center;
-        align-items:center;
-        /* width: 98%; */
-        margin: 0 1%;
-      }
-      #timeDiv {
-        font-size: 20vmin;
-        height: 23%;
-        vertical-align: bottom;
-        /* font-size: 18px; */
-        display: flex;
-        flex-direction: row;
-        user-select: none;
-        touch-action: none;
-      }
-      #startstop{
-        height: 48%;
-        margin-bottom: 1%;
-      }
-      #reverseDiv{
-        height: 25%;
-        display: flex;
-        flex-direction: column;
-      }
+        html,
+        body {
+            min-height: 100%;
+            height: 100%;
+            margin: 0;
+            background-color: hsl(0, 0%, 84%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        body>div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            touch-action: none;
+            font: 23vmin Arial, sans-serif;
+        }
+
+        #reverseDiv {
+            flex: 0 1 25%;
+            flex-direction: column;
+        }
+
+        #reverseDiv div:first-child {
+            font-size: 0.6em;
+        }
+
+        #reverseDiv div:last-child {
+            font-size: 0.3em;
+        }
+
+        #timeDiv {
+            background-color: white;
+            flex: 1 1 auto;
+        }
+
+        #startstop {
+            flex: 0 1 45%;
+        }
     </style>
-  </head>
-  <body>
-    <div id="startstop" style="font-size: xxx-large;">START</div>
-    <div id="timeDiv">
-      <div>0</div>
-      <div>0</div>
-      <div>:</div>
-      <div six="true">0</div>
-      <div>0</div>
-      <div>:</div>
-      <div six="true">0</div>
-      <div>0</div>
-      <div>.</div>
-      <div>0</div>
+</head>
+
+<body>
+    <div id="reverseDiv">
+        <div>STOPWATCH</div>
+        <div>TIMER</div>
     </div>
-    <div id="reverseDiv"><div style="font-size: xxx-large;">STOPWATCH</div><div>TIMER</div></div>
+    <div id="timeDiv">
+        <div>0</div>
+        <div>:</div>
+        <div six="true">0</div>
+        <div>0</div>
+        <div>:</div>
+        <div six="true">0</div>
+        <div>0</div>
+        <div>.</div>
+        <div>0</div>
+    </div>
+    <div id="startstop">START</div>
     <script>
-      const print = console.log;
-      var audio = new Audio("Swiss Bell Sound [qBw-OmBv9o8].webm");
-      function setTimeFields(n) {
-        var sec_num = n / 1000;
-        var hours = Math.floor(sec_num / 3600);
-        var minutes = Math.floor((sec_num - hours * 3600) / 60);
-        var seconds = Math.floor(sec_num - hours * 3600 - minutes * 60);
-        var centiseconds = Math.floor((sec_num * 100) % 100);
-        timeDiv.children[0].innerHTML = Math.floor(hours / 10);
-        timeDiv.children[1].innerHTML = hours % 10;
-        timeDiv.children[3].innerHTML = Math.floor(minutes / 10);
-        timeDiv.children[4].innerHTML = minutes % 10;
-        timeDiv.children[6].innerHTML = Math.floor(seconds / 10);
-        timeDiv.children[7].innerHTML = seconds % 10;
-        timeDiv.children[9].innerHTML = Math.floor(centiseconds / 10);
-      }
-      let then = Date.now();
-      let pauseTime = 0;
-      let dt = 0;
-      let running = false;
-      let reverse = false;
-      let intervalID;
-      function start() {
-        then = Date.now();
-        intervalID = setInterval(updTime, 40);
-        startstop.innerHTML='STOP'
-      }
-      function stop() {
-        clearInterval(intervalID);
-        pauseTime = dt;
-        startstop.innerHTML='START'
-      }
-      startstop.addEventListener("click", function () {
-        running = !running;
-        if (running) {
-          start();
-        } else {
-          stop();
-
+        const print = console.log;
+        const audio = new Audio("Swiss Bell Sound [qBw-OmBv9o8].webm");
+        function setTimeFields(n) {
+            const sec_num = n / 1000;
+            const hours = Math.floor(sec_num / 3600);
+            const minutes = Math.floor((sec_num - hours * 3600) / 60);
+            const seconds = Math.floor(sec_num - hours * 3600 - minutes * 60);
+            const centiseconds = Math.floor((sec_num * 100) % 100);
+            timeDiv.children[0].innerHTML = hours % 10;
+            timeDiv.children[2].innerHTML = Math.floor(minutes / 10);
+            timeDiv.children[3].innerHTML = minutes % 10;
+            timeDiv.children[5].innerHTML = Math.floor(seconds / 10);
+            timeDiv.children[6].innerHTML = seconds % 10;
+            timeDiv.children[8].innerHTML = Math.floor(centiseconds / 10);
         }
-      });
-      function updTime() {
-        dt = pauseTime + (reverse ? -1 : 1) * (Date.now() - then);
-        // print(dt, pauseTime, Date.now() - then);
-        if (dt < 0) {
-          dt = 0;
-          running = false;
-          audio.play();
-          stop();
+        let then = Date.now();
+        let pauseTime = 0;
+        let dt = 0;
+        let running = false;
+        let reverse = false;
+        let intervalID;
+        function start() {
+            then = Date.now();
+            intervalID = setInterval(updTime, 40);
+            startstop.innerHTML = 'STOP';
+            running=true;
         }
-        setTimeFields(dt);
-      }
-      updTime();
-
-      reverseDiv.addEventListener("click", function () {
-        reverse = !reverse;
-        pauseTime = dt;
-        stop()
-        reverseDiv.children[1*reverse].innerHTML="STOPWATCH"
-        reverseDiv.children[1*!reverse].innerHTML="TIMER"
-      });
-      let gestureStartY = 0;
-      for (const el of timeDiv.children) {
-        function cb(ee) {
-          if (isFinite(el.innerHTML)) {
-            dy = ee.clientY - gestureStartY;
-            const threshold = 60;
-            if (dy > threshold) {
-              el.innerHTML++;
-              gestureStartY += threshold;
-            }
-            if (dy < -threshold) {
-              el.innerHTML--;
-              gestureStartY -= threshold;
-            }
-            const n = el.innerHTML;
-            if (el.getAttribute("six") === "true") {
-              el.innerHTML = n > 5 ? 0 : n < 0 ? 5 : n;
+        function stop() {
+            clearInterval(intervalID);
+            pauseTime = dt;
+            startstop.innerHTML = 'START'
+            running=false;
+        }
+        startstop.addEventListener("click", function () {
+            if (running) {
+                stop();
             } else {
-              el.innerHTML = n > 9 ? 0 : n < 0 ? 9 : n;
+                start();
             }
-            pauseTime =
-              timeDiv.children[0].innerHTML * 3.6e7 +
-              timeDiv.children[1].innerHTML * 3.6e6 +
-              timeDiv.children[3].innerHTML * 6e5 +
-              timeDiv.children[4].innerHTML * 6e4 +
-              timeDiv.children[6].innerHTML * 1e4 +
-              timeDiv.children[7].innerHTML * 1e3 +
-              timeDiv.children[9].innerHTML * 1e2 
-              // timeDiv.children[10].innerHTML * 1e1;
-          }
+        });
+        function updTime() {
+            dt = pauseTime + (reverse ? -1 : 1) * (Date.now() - then);
+            if (dt < 0) {
+                dt = 0;
+                stop();
+                audio.play();
+            }
+            setTimeFields(dt);
         }
-        el.addEventListener("pointerdown", (e) => {
-          gestureStartY = e.clientY;
-          document.body.addEventListener("pointermove", cb);
+
+        reverseDiv.addEventListener("click", function () {
+            reverse = !reverse;
+            stop()
+            reverseDiv.children[1 * reverse].innerHTML = "STOPWATCH"
+            reverseDiv.children[1 * !reverse].innerHTML = "TIMER"
         });
-        document.body.addEventListener("pointerup", (e) => {
-          document.body.removeEventListener("pointermove", cb);
-        });
-      }
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", function () {
-          navigator.serviceWorker
-            .register("/timer/sw.js", { scope: "." })
-            .then((res) => console.log("service worker registered"))
-            .catch((err) => console.log("service worker not registered", err));
-        });
-      }
+        let gestureStartY = 0;
+        for (const el of timeDiv.children) {
+            if (isFinite(el.innerHTML)) {
+                function cb(ee) {
+                    const dy = ee.clientY - gestureStartY;
+                    const threshold = 60;
+                    // if (dy > threshold) {
+                    //     el.innerHTML++;
+                    //     gestureStartY += threshold;
+                    // }
+                    // if (dy < -threshold) {
+                    //     el.innerHTML--;
+                    //     gestureStartY -= threshold;
+                    // }
+                    // const n = el.innerHTML;
+                    // if (el.getAttribute("six") === "true") {
+                    //     el.innerHTML = n > 5 ? 0 : n < 0 ? 5 : n;
+                    // } else {
+                    //     el.innerHTML = n > 9 ? 0 : n < 0 ? 9 : n;
+                    // }
+                    pauseTime =
+                        timeDiv.children[0].innerHTML * 3.6e6 +
+                        timeDiv.children[2].innerHTML * 6e5 +
+                        timeDiv.children[3].innerHTML * 6e4 +
+                        timeDiv.children[5].innerHTML * 1e4 +
+                        timeDiv.children[6].innerHTML * 1e3 +
+                        timeDiv.children[8].innerHTML * 1e2
+                    print(pauseTime)
+                }
+                el.addEventListener("pointerdown", (e) => {
+                    gestureStartY = e.clientY;
+                    document.body.addEventListener("pointermove", cb);
+                });
+                document.body.addEventListener("pointerup", (e) => {
+                    document.body.removeEventListener("pointermove", cb);
+                });
+            }
+        }
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+                navigator.serviceWorker
+                    .register("/timer/sw.js", { scope: "." })
+                    .then((res) => console.log("service worker registered"))
+                    .catch((err) => console.log("service worker not registered", err));
+            });
+        }
     </script>
-  </body>
+</body>
+
 </html>
