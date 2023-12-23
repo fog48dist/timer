@@ -132,20 +132,20 @@
                 function cb(ee) {
                     const dy = ee.clientY - gestureStartY;
                     const threshold = 60;
-                    // if (dy > threshold) {
-                    //     el.innerHTML++;
-                    //     gestureStartY += threshold;
-                    // }
-                    // if (dy < -threshold) {
-                    //     el.innerHTML--;
-                    //     gestureStartY -= threshold;
-                    // }
-                    // const n = el.innerHTML;
-                    // if (el.getAttribute("six") === "true") {
-                    //     el.innerHTML = n > 5 ? 0 : n < 0 ? 5 : n;
-                    // } else {
-                    //     el.innerHTML = n > 9 ? 0 : n < 0 ? 9 : n;
-                    // }
+                     if (dy > threshold) {
+                         el.innerHTML++;
+                         gestureStartY += threshold;
+                     }
+                     if (dy < -threshold) {
+                         el.innerHTML--;
+                         gestureStartY -= threshold;
+                     }
+                     const n = el.innerHTML;
+                     if (el.getAttribute("six") === "true") {
+                         el.innerHTML = n > 5 ? 0 : n < 0 ? 5 : n;
+                     } else {
+                         el.innerHTML = n > 9 ? 0 : n < 0 ? 9 : n;
+                     }
                     pauseTime =
                         timeDiv.children[0].innerHTML * 3.6e6 +
                         timeDiv.children[2].innerHTML * 6e5 +
