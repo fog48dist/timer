@@ -85,26 +85,27 @@
             timeDiv.children[6].innerHTML = seconds % 10;
             timeDiv.children[8].innerHTML = Math.floor(centiseconds / 10);
         }
-        let then = Date.now();
+        let then;
         let pauseTime = 0;
         let dt = 0;
-        let running = false;
-        let reverse = false;
         let intervalID;
+        let reverse = false;
         function start() {
-            then = Date.now();
-            intervalID = setInterval(updTime, 40);
-            startstop.innerHTML = 'STOP';
-            running=true;
+            if(!intervalID){
+                then = Date.now();
+                intervalID = setInterval(updTime, 40);
+                startstop.innerHTML = 'STOP';
+            }
         }
         function stop() {
-            clearInterval(intervalID);
-            pauseTime = dt;
-            startstop.innerHTML = 'START'
-            running=false;
+            if(intervalID){
+                intervalID = clearInterval(intervalID);
+                pauseTime = dt;
+                startstop.innerHTML = 'START'
+            }
         }
         startstop.addEventListener("click", function () {
-            if (running) {
+            if (intervalID) {
                 stop();
             } else {
                 start();
@@ -132,20 +133,20 @@
                 function cb(ee) {
                     const dy = ee.clientY - gestureStartY;
                     const threshold = 60;
-                     if (dy > threshold) {
-                         el.innerHTML++;
-                         gestureStartY += threshold;
-                     }
-                     if (dy < -threshold) {
-                         el.innerHTML--;
-                         gestureStartY -= threshold;
-                     }
-                     const n = el.innerHTML;
-                     if (el.getAttribute("six") === "true") {
-                         el.innerHTML = n > 5 ? 0 : n < 0 ? 5 : n;
-                     } else {
-                         el.innerHTML = n > 9 ? 0 : n < 0 ? 9 : n;
-                     }
+                    if (dy > threshold) {
+                        el.innerHTML++;
+                        gestureStartY += threshold;
+                    }
+                    if (dy < -threshold) {
+                        el.innerHTML--;
+                        gestureStartY -= threshold;
+                    }
+                    const n = el.innerHTML;
+                    if (el.getAttribute("six") === "true") {
+                        el.innerHTML = n > 5 ? 0 : n < 0 ? 5 : n;
+                    } else {
+                        el.innerHTML = n > 9 ? 0 : n < 0 ? 9 : n;
+                    }
                     pauseTime =
                         timeDiv.children[0].innerHTML * 3.6e6 +
                         timeDiv.children[2].innerHTML * 6e5 +
@@ -153,11 +154,13 @@
                         timeDiv.children[5].innerHTML * 1e4 +
                         timeDiv.children[6].innerHTML * 1e3 +
                         timeDiv.children[8].innerHTML * 1e2
-                    print(pauseTime)
+
                 }
                 el.addEventListener("pointerdown", (e) => {
-                    gestureStartY = e.clientY;
-                    document.body.addEventListener("pointermove", cb);
+                    if (!intervalID){
+                        gestureStartY = e.clientY;
+                        document.body.addEventListener("pointermove", cb);
+                    }
                 });
                 document.body.addEventListener("pointerup", (e) => {
                     document.body.removeEventListener("pointermove", cb);
