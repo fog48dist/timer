@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Timer</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="timer-svgrepo-com.svg" type="image/svg+xml">
-    
+
     <style>
         html,
         body {
@@ -46,7 +47,12 @@
         }
 
         #startstop {
-            flex: 0 1 45%;
+            flex: 0 1 40%;
+        }
+
+        #bottomdiv {
+            flex: 0 1 4%;
+            background-color: hsl(0, 0%, 92%);
         }
     </style>
 </head>
@@ -68,6 +74,7 @@
         <div>0</div>
     </div>
     <div id="startstop">START</div>
+    <div id="bottomdiv"></div>
     <script>
         const print = console.log;
         const audio = new Audio("Bicycle-bell-1.opus");
@@ -90,30 +97,33 @@
         let intervalID;
         let reverse = false;
         function start() {
-            if(!intervalID){
+            if (!intervalID) {
                 then = Date.now();
                 intervalID = setInterval(updTime, 40);
                 startstop.innerHTML = 'STOP';
             }
         }
         function stop() {
-            if(intervalID){
+            if (intervalID) {
                 intervalID = clearInterval(intervalID);
                 pauseTime = dt;
                 startstop.innerHTML = 'START'
             }
         }
-        startstop.addEventListener("click", function () {
-            if (intervalID) {
-                stop();
-            } else {
-                start();
-            }
-        });
+        startstop.addEventListener("pointerdown", () => intervalID ? stop() : start());
         function updTime() {
             dt = pauseTime + (reverse ? -1 : 1) * (Date.now() - then);
             if (dt < 0) {
                 dt = 0;
+                if ("serviceWorker" in navigator) {
+                    Notification.requestPermission(function (result) {
+                        if (result === 'granted') {
+                            navigator.serviceWorker.ready.then(function (registration) {
+                                registration.showNotification('Timer');
+                            });
+                        }
+                    });
+                }
                 stop();
                 audio.play();
             }
@@ -156,7 +166,7 @@
 
                 }
                 el.addEventListener("pointerdown", (e) => {
-                    if (!intervalID){
+                    if (!intervalID) {
                         gestureStartY = e.clientY;
                         document.body.addEventListener("pointermove", cb);
                     }
@@ -166,12 +176,20 @@
                 });
             }
         }
+
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", function () {
                 navigator.serviceWorker
                     .register("/timer/sw.js", { scope: "." })
                     .then((res) => console.log("service worker registered"))
                     .catch((err) => console.log("service worker not registered", err));
+            });
+            Notification.requestPermission(function (result) {
+                if (result === 'granted') {
+                    navigator.serviceWorker.ready.then(function (registration) {
+                        registration.showNotification('Timer');
+                    });
+                }
             });
         }
     </script>
