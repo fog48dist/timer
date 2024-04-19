@@ -115,15 +115,6 @@
             dt = pauseTime + (reverse ? -1 : 1) * (Date.now() - then);
             if (dt < 0) {
                 dt = 0;
-                if ("serviceWorker" in navigator) {
-                    Notification.requestPermission(function (result) {
-                        if (result === 'granted') {
-                            navigator.serviceWorker.ready.then(function (registration) {
-                                registration.showNotification('Timer');
-                            });
-                        }
-                    });
-                }
                 stop();
                 audio.play();
             }
@@ -183,13 +174,6 @@
                     .register("/timer/sw.js", { scope: "." })
                     .then((res) => console.log("service worker registered"))
                     .catch((err) => console.log("service worker not registered", err));
-            });
-            Notification.requestPermission(function (result) {
-                if (result === 'granted') {
-                    navigator.serviceWorker.ready.then(function (registration) {
-                        registration.showNotification('Timer');
-                    });
-                }
             });
         }
     </script>
