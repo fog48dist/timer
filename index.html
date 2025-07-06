@@ -84,12 +84,12 @@
             const minutes = Math.floor((sec_num - hours * 3600) / 60);
             const seconds = Math.floor(sec_num - hours * 3600 - minutes * 60);
             const centiseconds = Math.floor((sec_num * 100) % 100);
-            timeDiv.children[0].innerHTML = hours % 10;
-            timeDiv.children[2].innerHTML = Math.floor(minutes / 10);
-            timeDiv.children[3].innerHTML = minutes % 10;
-            timeDiv.children[5].innerHTML = Math.floor(seconds / 10);
-            timeDiv.children[6].innerHTML = seconds % 10;
-            timeDiv.children[8].innerHTML = Math.floor(centiseconds / 10);
+            timeDiv.children[0].innerText = hours % 10;
+            timeDiv.children[2].innerText = Math.floor(minutes / 10);
+            timeDiv.children[3].innerText = minutes % 10;
+            timeDiv.children[5].innerText = Math.floor(seconds / 10);
+            timeDiv.children[6].innerText = seconds % 10;
+            timeDiv.children[8].innerText = Math.floor(centiseconds / 10);
         }
         let then;
         let pauseTime = 0;
@@ -99,15 +99,15 @@
         function start() {
             if (!intervalID) {
                 then = Date.now();
-                intervalID = setInterval(updTime, 40);
-                startstop.innerHTML = 'STOP';
+                intervalID = setInterval(updTime, 100);
+                startstop.innerText = 'STOP';
             }
         }
         function stop() {
             if (intervalID) {
                 intervalID = clearInterval(intervalID);
                 pauseTime = dt;
-                startstop.innerHTML = 'START'
+                startstop.innerText = 'START'
             }
         }
         startstop.addEventListener("pointerdown", () => intervalID ? stop() : start());
@@ -124,36 +124,36 @@
         reverseDiv.addEventListener("click", function () {
             reverse = !reverse;
             stop()
-            reverseDiv.children[1 * reverse].innerHTML = "STOPWATCH"
-            reverseDiv.children[1 * !reverse].innerHTML = "TIMER"
+            reverseDiv.children[1 * reverse].innerText = "STOPWATCH"
+            reverseDiv.children[1 * !reverse].innerText = "TIMER"
         });
         let gestureStartY = 0;
         for (const el of timeDiv.children) {
-            if (isFinite(el.innerHTML)) {
+            if (isFinite(el.innerText)) {
                 function cb(ee) {
                     const dy = ee.clientY - gestureStartY;
                     const threshold = 60;
                     if (dy > threshold) {
-                        el.innerHTML++;
+                        el.innerText++;
                         gestureStartY += threshold;
                     }
                     if (dy < -threshold) {
-                        el.innerHTML--;
+                        el.innerText--;
                         gestureStartY -= threshold;
                     }
-                    const n = el.innerHTML;
+                    const n = el.innerText;
                     if (el.getAttribute("six") === "true") {
-                        el.innerHTML = n > 5 ? 0 : n < 0 ? 5 : n;
+                        el.innerText = n > 5 ? 0 : n < 0 ? 5 : n;
                     } else {
-                        el.innerHTML = n > 9 ? 0 : n < 0 ? 9 : n;
+                        el.innerText = n > 9 ? 0 : n < 0 ? 9 : n;
                     }
                     pauseTime =
-                        timeDiv.children[0].innerHTML * 3.6e6 +
-                        timeDiv.children[2].innerHTML * 6e5 +
-                        timeDiv.children[3].innerHTML * 6e4 +
-                        timeDiv.children[5].innerHTML * 1e4 +
-                        timeDiv.children[6].innerHTML * 1e3 +
-                        timeDiv.children[8].innerHTML * 1e2
+                        timeDiv.children[0].innerText * 3.6e6 +
+                        timeDiv.children[2].innerText * 6e5 +
+                        timeDiv.children[3].innerText * 6e4 +
+                        timeDiv.children[5].innerText * 1e4 +
+                        timeDiv.children[6].innerText * 1e3 +
+                        timeDiv.children[8].innerText * 1e2
 
                 }
                 el.addEventListener("pointerdown", (e) => {
