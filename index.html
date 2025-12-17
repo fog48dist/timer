@@ -11,12 +11,14 @@
     <style>
         html,
         body {
-            min-height: 100%;
             height: 100%;
             margin: 0;
-            background-color: hsl(0, 0%, 84%);
+        }
+
+        body {
             display: flex;
             flex-direction: column;
+            background-color: hsl(0, 0%, 92%);
         }
 
         body>div {
@@ -26,10 +28,11 @@
             user-select: none;
             touch-action: none;
             font: 23vmin Arial, sans-serif;
+            background-color: hsl(0, 0%, 84%);
         }
 
         #reverseDiv {
-            flex: 0 1 25%;
+            height: 25vh;
             flex-direction: column;
         }
 
@@ -43,16 +46,11 @@
 
         #timeDiv {
             background-color: white;
-            flex: 1 1 auto;
+            height: 30vh;
         }
 
         #startstop {
-            flex: 0 1 40%;
-        }
-
-        #bottomdiv {
-            flex: 0 1 4%;
-            background-color: hsl(0, 0%, 92%);
+            height: 40vh;
         }
     </style>
 </head>
@@ -74,60 +72,65 @@
         <div>0</div>
     </div>
     <div id="startstop">START</div>
-    <div id="bottomdiv"></div>
     <script>
         const print = console.log;
         const audio = new Audio("Bicycle-bell-1.opus");
-        function setTimeFields(n) {
-            const sec_num = n / 1000;
-            const hours = Math.floor(sec_num / 3600);
-            const minutes = Math.floor((sec_num - hours * 3600) / 60);
-            const seconds = Math.floor(sec_num - hours * 3600 - minutes * 60);
-            const centiseconds = Math.floor((sec_num * 100) % 100);
-            timeDiv.children[0].innerText = hours % 10;
-            timeDiv.children[2].innerText = Math.floor(minutes / 10);
-            timeDiv.children[3].innerText = minutes % 10;
-            timeDiv.children[5].innerText = Math.floor(seconds / 10);
-            timeDiv.children[6].innerText = seconds % 10;
-            timeDiv.children[8].innerText = Math.floor(centiseconds / 10);
-        }
-        let then;
-        let pauseTime = 0;
-        let dt = 0;
-        let intervalID;
-        let reverse = false;
-        function start() {
+        const timer = JSON.parse(localStorage.getItem('timer')) || { dt: 0, reverse: false }
+        let intervalID,reversePressedTime,gestureStartY;
+        function start(resume = false) {
             if (!intervalID) {
-                then = Date.now();
+                if (!resume) timer.then = Date.now() - timer.dt * (timer.reverse ? -1 : 1);
                 intervalID = setInterval(updTime, 100);
                 startstop.innerText = 'STOP';
+                reverseDiv.children[1].style.display = 'none'
             }
         }
         function stop() {
             if (intervalID) {
                 intervalID = clearInterval(intervalID);
-                pauseTime = dt;
+                delete timer.then;
                 startstop.innerText = 'START'
+                reverseDiv.children[1].style.display = ''
             }
         }
-        startstop.addEventListener("pointerdown", () => intervalID ? stop() : start());
+        
+        function setTimeFields(n) {
+            const h = ~~(n / 3600_000);
+            const m = ~~(n / 60_000 - h * 60);
+            const s = ~~(n / 1000 - h * 3600 - m * 60);
+            timeDiv.children[0].innerText = h % 10;
+            timeDiv.children[2].innerText = ~~(m / 10);
+            timeDiv.children[3].innerText = m % 10;
+            timeDiv.children[5].innerText = ~~(s / 10);
+            timeDiv.children[6].innerText = s % 10;
+            timeDiv.children[8].innerText = ~~((n / 100) % 10);
+        }
         function updTime() {
-            dt = pauseTime + (reverse ? -1 : 1) * (Date.now() - then);
-            if (dt < 0) {
-                dt = 0;
+            timer.dt = (timer.reverse ? -1 : 1) * (Date.now() - timer.then);
+            if (timer.dt < 0) {
+                timer.dt = 0;
                 stop();
                 audio.play();
             }
-            setTimeFields(dt);
+            setTimeFields(timer.dt)
         }
 
-        reverseDiv.addEventListener("click", function () {
-            reverse = !reverse;
-            stop()
-            reverseDiv.children[1 * reverse].innerText = "STOPWATCH"
-            reverseDiv.children[1 * !reverse].innerText = "TIMER"
+        if (timer.then) { start(1) } else { setTimeFields(timer.dt) }
+        startstop.addEventListener("pointerdown", () => intervalID ? stop() : start());
+        reverseDiv.addEventListener("pointerdown", function () {
+            reversePressedTime=Date.now()
         });
-        let gestureStartY = 0;
+        reverseDiv.addEventListener("pointerup", function () {
+            if(!timer.then){
+                if(Date.now()-reversePressedTime<1000){
+                    timer.reverse = !timer.reverse;
+                    reverseDiv.children[1 * timer.reverse].innerText = "STOPWATCH"
+                    reverseDiv.children[1 * !timer.reverse].innerText = "TIMER"
+                }else{
+                    setTimeFields(timer.dt=0)
+                }
+            }
+        });
         for (const el of timeDiv.children) {
             if (isFinite(el.innerText)) {
                 function cb(ee) {
@@ -147,7 +150,7 @@
                     } else {
                         el.innerText = n > 9 ? 0 : n < 0 ? 9 : n;
                     }
-                    pauseTime =
+                    timer.dt =
                         timeDiv.children[0].innerText * 3.6e6 +
                         timeDiv.children[2].innerText * 6e5 +
                         timeDiv.children[3].innerText * 6e4 +
@@ -167,7 +170,11 @@
                 });
             }
         }
-
+        document.onvisibilitychange = e => {
+            if (document.visibilityState == 'hidden') {
+                localStorage.setItem("timer", JSON.stringify(timer))
+            }
+        }
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", function () {
                 navigator.serviceWorker
