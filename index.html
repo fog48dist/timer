@@ -122,7 +122,7 @@
         });
         reverseDiv.addEventListener("pointerup", function () {
             if(!timer.then){
-                if(Date.now()-reversePressedTime<1000){
+                if(Date.now()-reversePressedTime<800){
                     timer.reverse = !timer.reverse;
                     reverseDiv.children[1 * timer.reverse].innerText = "STOPWATCH"
                     reverseDiv.children[1 * !timer.reverse].innerText = "TIMER"
