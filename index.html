@@ -116,6 +116,9 @@
         }
 
         if (timer.then) { start(1) } else { setTimeFields(timer.dt) }
+        reverseDiv.children[+timer.reverse].innerText = "STOPWATCH";
+        reverseDiv.children[+!timer.reverse].innerText = "TIMER";
+        
         startstop.addEventListener("pointerdown", () => intervalID ? stop() : start());
         reverseDiv.addEventListener("pointerdown", function () {
             reversePressedTime=Date.now()
